@@ -26,6 +26,10 @@
         updateStatus();
       }
     }
+    
+    function callGreeting() {
+    	document.getElementById('return_field').innerHTML += (MapreduceModule.HelloWorld()) + "<br>";
+    }
 
     // Set the global status message.  If the element with id 'statusField'
     // exists, then set its HTML to the status message as well.
@@ -68,5 +72,9 @@
 
 <h2>Status</h2>
 <div id="status_field">NO-STATUS</div>
+<input type="button" value="Call Hello!" onClick="callGreeting()">
+<hr>
+<div id="return_field"></div>
+
 </body>
 </html>
