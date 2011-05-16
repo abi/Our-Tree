@@ -20,10 +20,17 @@ namespace {
     int counter = 0;
 
 	const char* const kHelloWorldMethodId = "HelloWorld";
+	const char* const kSetCounterMethodId = "SetCounter";
 	
 	std::string HelloWorld() {
 	    counter++;
 		return "Hello from Native Client! You've called this function " + toString(counter) + " time(s).";
+	}
+	
+	std::string SetCounter(const pp::Var& x) {
+		if(!x.is_number()) return "INVALID!";
+		counter = x.is_int() ? x.AsInt() : static_cast<int32_t>(x.AsDouble());
+		return "Counter is now " + toString(counter);
 	}
 
 }
@@ -40,7 +47,7 @@ class MapreduceScriptableObject : public pp::deprecated::ScriptableObject {
 };
 
 bool MapreduceScriptableObject::HasMethod(const pp::Var& method,
-                                             pp::Var* exception) {
+                                                pp::Var* exception) {
   if (!method.is_string()) {
     return false;
   }
@@ -48,14 +55,16 @@ bool MapreduceScriptableObject::HasMethod(const pp::Var& method,
 
   if(method_name == kHelloWorldMethodId) {
   	return true;
-  } else {
-  	return false;
+  } else if(method_name == kSetCounterMethodId) {
+  	return true;
   }
+  
+  return false;
 }
 
 pp::Var MapreduceScriptableObject::Call(const pp::Var& method,
-                                           const std::vector<pp::Var>& args,
-                                           pp::Var* exception) {
+                                        const std::vector<pp::Var>& args,
+                                        pp::Var* exception) {
   if (!method.is_string()) {
     return pp::Var();
   }
@@ -63,6 +72,8 @@ pp::Var MapreduceScriptableObject::Call(const pp::Var& method,
 
   if(method_name == kHelloWorldMethodId) {
   	return pp::Var(HelloWorld());
+  } else if(method_name == kSetCounterMethodId) {
+  	return pp::Var(SetCounter(args[0]));
   }
 
   return pp::Var();
