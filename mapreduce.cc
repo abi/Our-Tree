@@ -5,9 +5,15 @@
 #include <cstdio>
 #include <string>
 #include <sstream>
+#include <pthread.h>
+#include <stdlib.h>
+#include <limits.h>
 
 /// These are the method names as JavaScript sees them.  Add any methods for
 /// your class here.
+
+#define NUM_THREADS 1
+
 namespace {
 
 	template <typename T>
@@ -18,17 +24,59 @@ namespace {
 	}
 
     int counter = 0;
+	int multicounter = 0;
+	int thread_counter[10];
 
 	const char* const kHelloWorldMethodId = "HelloWorld";
 	const char* const kSetCounterMethodId = "SetCounter";
+	const char* const kLaunchThreadMethodId = "LaunchThread";
+	const char* const kReadMultiCounterMethodId = "ReadMultiCounter";
 	
 	std::string HelloWorld() {
 	    counter++;
 		return "Hello from Native Client! You've called this function " + toString(counter) + " time(s).";
 	}
 	
+	void* ChildThread(void * x) {
+		int tid = (int)x;
+	    counter++;
+	    while(multicounter < INT_MAX) {
+			multicounter++;
+			thread_counter[tid]++;
+			usleep(100);
+		}
+		return NULL;
+	}
+	
+	std::string LaunchThread() {
+		pthread_t thread_tcb[10];
+		pthread_attr_t pthread_custom_attr;
+		pthread_attr_init(&pthread_custom_attr);
+		
+		for(int i = 0; i < 10; ++i)
+			pthread_create(&thread_tcb[i], &pthread_custom_attr, ChildThread, (int *)i);
+			
+		/*for(int i = 0; i < 10; ++i)
+			pthread_join(thread_tcb[i], NULL);*/
+		
+		return "Launched threads";
+	}
+
+	std::string ReadMultiCounter() {
+		std::string rt = "";
+		int sum = 0;
+		rt += "multicounter = " + toString(multicounter);
+		for(int i = 0; i < 10; ++i) {
+			rt += "<br>tc[" + toString(i) + "] = " + toString(thread_counter[i]);
+			sum += thread_counter[i];
+		}
+		rt += "<br>sum = " + toString(sum);
+		rt += "<br>";
+		return rt;
+	}
+	
 	std::string SetCounter(const pp::Var& x) {
-		if(!x.is_number()) return "INVALID!";
+		if(!x.is_number()) return "Invalid";
 		counter = x.is_int() ? x.AsInt() : static_cast<int32_t>(x.AsDouble());
 		return "Counter is now " + toString(counter);
 	}
@@ -57,6 +105,10 @@ bool MapreduceScriptableObject::HasMethod(const pp::Var& method,
   	return true;
   } else if(method_name == kSetCounterMethodId) {
   	return true;
+  } else if(method_name == kLaunchThreadMethodId) {
+  	return true;
+  } else if(method_name == kReadMultiCounterMethodId) {
+  	return true;
   }
   
   return false;
@@ -74,6 +126,10 @@ pp::Var MapreduceScriptableObject::Call(const pp::Var& method,
   	return pp::Var(HelloWorld());
   } else if(method_name == kSetCounterMethodId) {
   	return pp::Var(SetCounter(args[0]));
+  } else if(method_name == kLaunchThreadMethodId) {
+  	return pp::Var(LaunchThread());
+  } else if(method_name == kReadMultiCounterMethodId) {
+  	return pp::Var(ReadMultiCounter());
   }
 
   return pp::Var();

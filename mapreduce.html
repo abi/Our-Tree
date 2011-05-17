@@ -35,6 +35,14 @@
     function callGreeting() {
     	document.getElementById('return_field').innerHTML += (MapreduceModule.HelloWorld()) + "<br>";
     }
+    
+    function launchThread() {
+    	document.getElementById('return_field').innerHTML += (MapreduceModule.LaunchThread()) + "<br>";    
+    }
+    
+    function ReadMultiCounter() {
+    	document.getElementById('return_field').innerHTML += (MapreduceModule.ReadMultiCounter()) + "<br>";        
+    }
 
     // Set the global status message.  If the element with id 'statusField'
     // exists, then set its HTML to the status message as well.
@@ -80,6 +88,8 @@
 <input type="button" value="Call Hello!" onClick="callGreeting()"><br>
 <input type="text" value="0" id="counter">
 <input type="button" value="Set Counter" onClick="setCounter(document.getElementById('counter').value)">
+<input type="button" value="Launch A Thread" onClick="launchThread()">
+<input type="button" value="Read Multicounter Value" onClick="ReadMultiCounter()">
 <hr>
 <div id="return_field"></div>
 
