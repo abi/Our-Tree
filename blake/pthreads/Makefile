@@ -1,9 +1,4 @@
-#
-# A simple makefile for managing build of project composed of C source files.
-#
-# Julie Zelenski, for CS107, Sept 2009
-#
-
+# Makefile adapted from CS107 makefile
 # It is likely that default C compiler is already gcc, but explicitly
 # set, just to be sure
 CC = gcc
