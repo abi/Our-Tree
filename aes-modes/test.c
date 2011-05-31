@@ -5,7 +5,6 @@
 #include "aes.h"
 
 #define ITERATIONS 10
-#define MESSAGE_LENGTH (100 * (1 << 20))
 #define AES_BLOCK_SIZE 16
 #define KEY_LENGTH_BYTES 32
 #define KEY_LENGTH_BITS (KEY_LENGTH_BYTES * 8)
@@ -19,6 +18,8 @@ typedef struct AESInfo {
 	int thread_id;
 	int total_threads;
 } AESInfo;
+
+size_t MESSAGE_LENGTH = 0;
 
 void* ecb_test_thread(void* a) {
 	AESInfo* info = (AESInfo *)a;
@@ -39,8 +40,17 @@ void* ecb_test_thread(void* a) {
 	return NULL;
 }
 
-void ecb_test(int num_thread) {
-	printf("Plain ECB, %d, ", num_thread);
+void ecb_test(int msg_length, int num_thread) {
+	printf("Plain ECB, %d, %d, ", msg_length, num_thread);
+
+	MESSAGE_LENGTH = msg_length;
+
+	msg = malloc(MESSAGE_LENGTH);
+	out = malloc(MESSAGE_LENGTH);
+	
+	for(int i = 0; i < MESSAGE_LENGTH; i++) {
+		msg[i] = rand() % 255;
+	}
 
 	for(int iter = 0; iter < ITERATIONS; iter++) {
 		
@@ -83,6 +93,11 @@ void ecb_test(int num_thread) {
 	
 	}
 	
+	MESSAGE_LENGTH = 0;
+	
+	free(msg);
+	free(out);
+	
 	printf("\n");
 }
 
@@ -90,19 +105,26 @@ int main() {
 	srand(1337);
 	setbuf(stdout, NULL);
 
-	printf("MESSAGE-LENGTH: %d | ITERATIONS %d\n", MESSAGE_LENGTH, ITERATIONS);
-
-	msg = malloc(MESSAGE_LENGTH);
-	out = malloc(MESSAGE_LENGTH);
 	
-	for(int i = 0; i < MESSAGE_LENGTH; i++) {
-		msg[i] = rand() % 255;
-	}	
-	
-	ecb_test(1);
-	ecb_test(2);
-	ecb_test(4);
+	ecb_test(1048576, 1);
+	ecb_test(1048576, 2);
+	ecb_test(1048576, 4);
+	ecb_test(1048576, 8);
 
+	ecb_test(10485760, 1);
+	ecb_test(10485760, 2);
+	ecb_test(10485760, 4);
+	ecb_test(10485760, 8);
+	
+	ecb_test(104857600, 1);
+	ecb_test(104857600, 2);
+	ecb_test(104857600, 4);
+	ecb_test(104857600, 8);
+	
+	ecb_test(1048576000, 1);
+	ecb_test(1048576000, 2);
+	ecb_test(1048576000, 4);
+	ecb_test(1048576000, 8);	
 	
 	return 0;
 }
