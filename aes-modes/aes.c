@@ -30,6 +30,7 @@
  */
 
 #define POLARSSL_AES_C 1
+#define POLARSSL_CIPHER_MODE_CTR 1
 
 #if defined(POLARSSL_AES_C)
 
