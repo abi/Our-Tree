@@ -2,6 +2,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
+#include <sys/time.h>
 #include "aes.h"
 
 #define ITERATIONS 10
@@ -23,6 +25,7 @@ size_t MESSAGE_LENGTH = 0;
 
 /* ------------------ ELECTRONIC CODE-BOOK ------------------ */
 void* ecb_test_thread(void* a) {
+
 	AESInfo* info = (AESInfo *)a;
 	//unsigned char output[AES_BLOCK_SIZE];
 	
@@ -64,8 +67,10 @@ void ecb_test(int msg_length, int num_thread) {
 		AESInfo infos[num_thread];
 		
 		pthread_attr_init(&pthread_custom_attr);
+
+		struct timeval start, end;
 	
-		clock_t time_start = clock();
+		gettimeofday(&start, NULL);
 		
 		for(int tid = 0; tid < num_thread; tid++) {
 			infos[tid].thread_id = tid;
@@ -79,10 +84,14 @@ void ecb_test(int msg_length, int num_thread) {
 			pthread_join(threads[tid], NULL);
 		}
 		
-		clock_t time_end = clock();
+		gettimeofday(&end, NULL);
 		
-		printf("%.6f, ", (double)((int)time_end - (int)time_start)/(double)(num_thread)/CLOCKS_PER_SEC);
-	
+		long long seconds  = end.tv_sec  - start.tv_sec;
+   		long long useconds = end.tv_usec - start.tv_usec;	
+   		
+   		seconds = 1000000 * seconds + useconds;
+   		
+   		printf("%lld, ", seconds);
 	}
 	
 	MESSAGE_LENGTH = 0;
@@ -100,8 +109,8 @@ void* ctr_test_thread(void* a) {
 	
 	int offset = 0;
 	int encrypt_length = MESSAGE_LENGTH / info->total_threads;
-	unsigned char* currpos = msg + encrypt_length * info->thread_id;
-	unsigned char* output = out + encrypt_length * info->thread_id;
+	//unsigned char* currpos = msg + encrypt_length * info->thread_id;
+	//unsigned char* output = out + encrypt_length * info->thread_id;
 	
 	unsigned char nonce[16];
 	unsigned char block[16];
@@ -141,7 +150,9 @@ void ctr_test(int msg_length, int num_thread) {
 		
 		pthread_attr_init(&pthread_custom_attr);
 	
-		clock_t time_start = clock();
+		struct timeval start, end;
+	
+		gettimeofday(&start, NULL);
 		
 		for(int tid = 0; tid < num_thread; tid++) {
 			infos[tid].thread_id = tid;
@@ -155,9 +166,14 @@ void ctr_test(int msg_length, int num_thread) {
 			pthread_join(threads[tid], NULL);
 		}
 		
-		clock_t time_end = clock();
+		gettimeofday(&end, NULL);
 		
-		printf("%.6f, ", (double)((int)time_end - (int)time_start)/(double)(num_thread)/CLOCKS_PER_SEC);
+		long long seconds  = end.tv_sec  - start.tv_sec;
+   		long long useconds = end.tv_usec - start.tv_usec;	
+   		
+   		seconds = 1000000 * seconds + useconds;
+   		
+   		printf("%lld, ", seconds);
 	
 	}
 	
@@ -174,7 +190,7 @@ int main() {
 	srand(1337);
 	setbuf(stdout, NULL);
 	
-	/*
+	
 	ecb_test(1048576, 1);
 	ecb_test(1048576, 2);
 	ecb_test(1048576, 4);
@@ -194,7 +210,7 @@ int main() {
 	ecb_test(1048576000, 2);
 	ecb_test(1048576000, 4);
 	ecb_test(1048576000, 8);	
-	*/
+	
 	
 	ctr_test(1048576, 1);
 	ctr_test(1048576, 2);
