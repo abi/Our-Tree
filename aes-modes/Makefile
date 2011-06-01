@@ -1,7 +1,7 @@
 # Makefile adapted from CS107 makefile
 # It is likely that default C compiler is already gcc, but explicitly
 # set, just to be sure
-CC = gcc
+CC = clang
 
 # The CFLAGS variable sets compile flags for gcc:
 #  -g          compile with debug information
@@ -10,19 +10,20 @@ CC = gcc
 #  -O0         do not optimize generated code
 #  -std=gnu99  use the Gnu C99 standard language definition
 #  -m32        emit code for IA32 architecture
-CFLAGS = -g -Wall -pedantic -O0 -std=gnu99
+# CFLAGS = -g -Wall -pedantic -O0 -std=gnu99
 
+CFLAGS = -g -Wall -pedantic -O0 -msse4.1 -maes
 
 # The LDFLAGS variable sets flags for linker
 #  -lm    link in libm (math library)
 #  -m32	  link with IA32 libraries
-LDFLAGS = -lm -pthread
+LDFLAGS = -lm
 
 # In this section, you list the files that are part of the project.
 # If you add/change names of header/source files, here is where you
 # edit the Makefile.
-HEADERS = aes.h
-SOURCES = test.c aes.c 
+HEADERS = aes.h aesni.h
+SOURCES = test.c aes.c aesni.c
 #.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = test
