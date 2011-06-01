@@ -21,8 +21,8 @@ LDFLAGS = -lm
 # In this section, you list the files that are part of the project.
 # If you add/change names of header/source files, here is where you
 # edit the Makefile.
-HEADERS = rc4.h
-SOURCES = test.c rc4.c 
+HEADERS = arc4.h
+SOURCES = test.c arc4.c 
 #.c
 OBJECTS = $(SOURCES:.c=.o)
 TARGET = test
